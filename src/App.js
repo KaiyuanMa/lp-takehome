@@ -43,8 +43,6 @@ function App() {
     setIsPlay((isPlay) => !isPlay);
   };
 
-  console.log(currIndex, blobLength);
-
   return (
     <div>
       <LineChart bulbId={currIndex} />
