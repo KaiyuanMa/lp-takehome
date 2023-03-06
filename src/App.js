@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-const { apiGetTestByPk } = require("./api/test");
+const { apiGetTestByPk, apiGetTestsCount } = require("./api/test");
 import { Line } from "react-chartjs-2";
 import {
   Chart,
@@ -12,6 +12,7 @@ import {
 } from "chart.js";
 
 function App() {
+  const [blobCount, setBlobCount] = useState(0);
   const [count, setCount] = useState(1);
   const [chartData, setChartData] = useState({});
   Chart.register(
@@ -81,7 +82,7 @@ function App() {
   useEffect(() => {
     const fetchDataAndUpdateCount = async () => {
       await fetchData(count);
-      if (count >= 50) {
+      if (count >= blobCount) {
         setCount(1);
       } else setCount((count) => count + 1);
     };
@@ -92,6 +93,20 @@ function App() {
       clearInterval(intervalId);
     };
   }, [count, fetchData]);
+
+  useEffect(() => {
+    const getBloBCount = async () => {
+      try {
+        const { data } = await apiGetTestsCount();
+        setBlobCount(data.length);
+      } catch (ex) {
+        next(ex);
+      }
+    };
+    getBloBCount();
+  }, []);
+
+  console.log(count, blobCount);
 
   return (
     <div>

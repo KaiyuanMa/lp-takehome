@@ -18,6 +18,15 @@ app.get("/api/test", async (req, res, next) => {
   }
 });
 
+app.get("/api/test/count", async (req, res, next) => {
+  try {
+    const length = await Test.count();
+    res.send({ length: length });
+  } catch (ex) {
+    next(ex);
+  }
+});
+
 app.get("/api/test/:testId", async (req, res, next) => {
   try {
     const test = await Test.findByPk(req.params.testId);
