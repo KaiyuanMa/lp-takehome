@@ -12,6 +12,7 @@ import {
 } from "chart.js";
 
 function App() {
+  const [count, setCount] = useState(1);
   const [chartData, setChartData] = useState({});
   Chart.register(
     LineController,
@@ -39,10 +40,10 @@ function App() {
     return dataPoints;
   };
 
-  const fetchData = async () => {
-    const { data } = await apiGetTestByPk(1);
+  const fetchData = async (id) => {
+    const { data } = await apiGetTestByPk(id);
     const dataArray = convertData(data.trace_data.data);
-    console.log(dataArray);
+
     setChartData({
       labels: dataArray.map((_, index) => index),
       datasets: [
@@ -78,8 +79,19 @@ function App() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetchDataAndUpdateCount = async () => {
+      await fetchData(count);
+      if (count >= 50) {
+        setCount(1);
+      } else setCount((count) => count + 1);
+    };
+
+    const intervalId = setInterval(fetchDataAndUpdateCount, 1000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [count, fetchData]);
 
   return (
     <div>
