@@ -1,10 +1,25 @@
 import React, { useEffect, useState } from "react";
 const { apiGetTestByPk } = require("./api/test");
-const utf8 = require("utf8");
+import { Line } from "react-chartjs-2";
+import {
+  Chart,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  Title,
+  CategoryScale,
+} from "chart.js";
 
 function App() {
-  const [dataPoints, setDataPoints] = useState([]);
-
+  const [chartData, setChartData] = useState({});
+  Chart.register(
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    CategoryScale
+  );
   const convertData = (data) => {
     const convertHexToInteger = (dataArray) => {
       const bytes = new Uint8Array(dataArray.reverse());
@@ -26,15 +41,51 @@ function App() {
 
   const fetchData = async () => {
     const { data } = await apiGetTestByPk(1);
-    setDataPoints(convertData(data.trace_data.data));
+    const dataArray = convertData(data.trace_data.data);
+    console.log(dataArray);
+    setChartData({
+      labels: dataArray.map((_, index) => index),
+      datasets: [
+        {
+          label: "My Data",
+          data: dataArray,
+          fill: true,
+          borderColor: "rgb(255,255,0)",
+          tension: 0.1,
+        },
+      ],
+    });
+  };
+
+  const options = {
+    scales: {
+      x: {
+        display: false,
+      },
+      y: {
+        ticks: {
+          callback: function (value, index, values) {
+            return value + " em";
+          },
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        display: true,
+      },
+    },
   };
 
   useEffect(() => {
     fetchData();
-    console.log(dataPoints);
   }, []);
-  console.log(dataPoints);
-  return <div>App</div>;
+
+  return (
+    <div>
+      {chartData.labels ? <Line data={chartData} options={options} /> : null}
+    </div>
+  );
 }
 
 export default App;
